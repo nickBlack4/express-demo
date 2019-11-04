@@ -59,7 +59,7 @@ app.get("/api/courses/:id", (req, res) => {
 	const course = courses.find(c => c.id === parseInt(req.params.id));
 	if (!course) {
 		// 404 by convention use 404 means object not found
-		res.status(404).send("The course with the given ID was not found");
+		return res.status(404).send("The course with the given ID was not found");
 	}
 	res.send(course); // we do have a course with given id
 });
@@ -75,8 +75,7 @@ app.post("/api/courses", (req, res) => {
 
 	const { error } = validateCourse(req.body);
 	if (error) {
-		res.status(400).send(error.details[0].message);
-		return;
+		return res.status(400).send(error.details[0].message);
 	}
 
 	// route handler
@@ -95,7 +94,7 @@ app.post("/api/courses", (req, res) => {
 		const course = courses.find(c => c.id === parseInt(req.params.id));
 		if (!course) {
 			// 404 by convention use 404 means object not found
-			res.status(404).send("The course with the given ID was not found");
+			return res.status(404).send("The course with the given ID was not found");
 		}
 
 		// Validate
@@ -105,14 +104,30 @@ app.post("/api/courses", (req, res) => {
 
 		if (error) {
 			// 400 Bad Request
-			res.status(400).send(error.details[0].message);
-			return; // return because we don't want to get to rest of the function
+			return res.status(400).send(error.details[0].message);
 		}
 
 		// Update course
 		course.name = req.body.name;
 
 		// Return the updated course
+		res.send(course);
+	});
+
+	app.delete("/api/courses/:id", (req, res) => {
+		// look up the course
+		// note existing, return 404
+		const course = courses.find(c => c.id === parseInt(req.params.id));
+		if (!course) {
+			// 404 by convention use 404 means object not found
+			return res.status(404).send("The course with the given ID was not found");
+		}
+
+		// Delete
+		const index = courses.indexOf(course);
+		courses.splice(index, 1);
+
+		// Return the same course
 		res.send(course);
 	});
 
